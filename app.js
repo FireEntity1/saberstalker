@@ -2,32 +2,67 @@ const { App } = require('@slack/bolt');
 
 require('dotenv').config();
 
+const base_player_url = "https://api.beatleader.com/player/"
+
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN
 });
 
-app.message('hello', async ({ message, say }) => {
+async function get_player(player_id) {
+  try {
+    const response = await fetch(base_player_url + player_id);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
+  }
+}
+
+app.message("beatleader ", async ({ message, say }) => {
+  app.logger.info("message received")
+  let data = {}
+  if (true) {
+    let username = message.text.replace("beatleader ", "")
+    data = await get_player(username)
+  }
+
   await say({
-    blocks: [
+    attachments: [
       {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": `Hey there <@${message.user}>!`
-        },
-        "accessory": {
-          "type": "button",
-          "text": {
-            "type": "plain_text",
-            "text": "Click Me"
-          },
-          "action_id": "button_click"
+            "mrkdwn_in": ["text"],
+            "color": "#36a64f",
+            "pretext": " ",
+            "author_name": data.player,
+            "author_link": "http://flickr.com/bobby/",
+            "author_icon": data.avatar,
+            "title": "BeatLeader",
+            "title_link": "https://beatleader.com/" + data.id,
+            "text": "Rank: #" + data.rank,
+            "thumb_url": data.avatar,
+            "fields": 
+            [
+                {
+                    "title": "Top PP Play",
+                    "value": data.scoreStats.topPp + " PP",
+                    "short": true
+                },
+                {
+                    "title": "Average Accuracy",
+                    "value": data.scoreStats.averageAccuracy + "%",
+                    "short": true
+                }
+            ],
+            "footer": "footer",
+            "footer_icon": "https://avatars.githubusercontent.com/u/98843512?s=200&v=4",
+            "ts": 123456789
         }
-      }
     ],
-    text: `Hey there <@${message.user}>!`
   });
 });
 
