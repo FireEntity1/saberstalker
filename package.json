@@ -23,5 +23,9 @@
   "bugs": {
     "url": "https://github.com/FireEntity1/saberstalker/issues"
   },
-  "homepage": "https://github.com/FireEntity1/saberstalker#readme"
+  "homepage": "https://github.com/FireEntity1/saberstalker#readme",
+  "dependencies": {
+    "@slack/bolt": "^4.4.0",
+    "dotenv": "^16.5.0"
+  }
 }
